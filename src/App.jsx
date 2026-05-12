@@ -13,6 +13,9 @@ function App() {
     localStorage.getItem("logado") === "true",
   );
   const [dados, setDados] = useState(null);
+  const [periodo, setPeriodo] = useState(7);
+  const backgroundColor = "bg-[#d6ad6b]";
+  const dadosFiltrados = dados?.grafico?.slice(-periodo) || [];
 
   async function carregarDados() {
     try {
@@ -89,19 +92,39 @@ function App() {
         />
       </div>
       {/* Gráfico */}
-      <h2 className="text-3xl font-bold mb-6">Resumo mensal</h2>
+      <div className="flex gap-3 mb-6">
+        <button
+          onClick={() => setPeriodo(7)}
+          className={`px-4 py-2 rounded-lg ${periodo === 7 ? `${backgroundColor} text-white` : "bg-gray-200"}`}
+        >
+          Semanal
+        </button>
+        <button
+          onClick={() => setPeriodo(30)}
+          className={`px-4 py-2 rounded-lg ${periodo === 30 ? `${backgroundColor} text-white` : "bg-gray-200"}`}
+        >
+          Mensal
+        </button>
+        <button
+          onClick={() => setPeriodo(90)}
+          className={`px-4 py-2 rounded-lg ${periodo === 90 ? `${backgroundColor} text-white` : "bg-gray-200"}`}
+        >
+          Trimestre
+        </button>
+      </div>
+      <h2 className="text-3xl font-bold mb-6">Ultimos {periodo} dias</h2>
       <div className="bg-white p-4 rounded-2xl shadow  mb-8">
         <h2 className="text-lg font-semibold mb-4">Lavra Diária</h2>
-        <GraficoBarras dados={dados.grafico} />
+        <GraficoBarras dados={dadosFiltrados} />
       </div>
       {/* grafico */}
       <div className="bg-white p-4 rounded-2xl shadow mb-8">
         <h2 className="text-lg font-semibold mb-4">Procssamento Diário</h2>
-        <GraficoBene dados={dados.grafico} />
+        <GraficoBene dados={dadosFiltrados} />
       </div>
       <div className="bg-white p-4 rounded-2xl shadow">
         <h2 className="text-lg font-semibold mb-4">Produção Diária</h2>
-        <GraficoOuro dados={dados.grafico} />
+        <GraficoOuro dados={dadosFiltrados} />
       </div>
     </div>
   );
