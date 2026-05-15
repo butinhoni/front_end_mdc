@@ -13,18 +13,28 @@ function App() {
     localStorage.getItem("logado") === "true",
   );
   const [dados, setDados] = useState(null);
+  const [dadosRt, setDadosRt] = useState(null);
   const [periodo, setPeriodo] = useState(7);
   const backgroundColor = "bg-[#d6ad6b]";
   const dadosFiltrados = dados?.grafico?.slice(-periodo) || [];
 
   async function carregarDados() {
     try {
-      const response = await api.get("/dashboard");
+      const response = await api.get("/dashboard_rt");
+      setDadosRt(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async function carregarDadosDiarios() {
+    try {
+      const response = await api.get("/dashboard_diario");
       setDados(response.data);
     } catch (error) {
       console.error(error);
     }
   }
+
   function logout() {
     localStorage.removeItem("logado");
     setLogado(false);
@@ -36,6 +46,16 @@ function App() {
     const interval = setInterval(() => {
       carregarDados();
     }, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    carregarDadosDiarios();
+
+    const interval = setInterval(() => {
+      carregarDadosDiarios();
+    }, 7200000);
 
     return () => clearInterval(interval);
   }, []);
@@ -61,11 +81,11 @@ function App() {
       </div>
       <h2 className="text-3xl font-bold mb-6">Status da Planta</h2>
       <div className="mb-8">
-        <StatusCard dados={dados.paradas} />
+        <StatusCard dados={dadosRt.paradas} />
       </div>
       {/* Cards */}
       <h2 className="text-3xl font-bold mb-6">Resumo do dia {dados.data}</h2>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
         <ResumoCard
           titulo="Minério"
           dados={dados.minerio}
@@ -79,6 +99,12 @@ function App() {
           unidade="ton"
         />
         <ResumoCard
+          titulo="R.E.M"
+          dados={dados.rem}
+          cor="principal"
+          unidade=""
+        />
+        <ResumoCard
           titulo="Processado"
           dados={dados.processado}
           cor="principal"
@@ -89,6 +115,12 @@ function App() {
           dados={dados.producao}
           cor="principal"
           unidade="g"
+        />
+        <ResumoCard
+          titulo="Teor de Ouro"
+          dados={dados.teor}
+          cor="principal"
+          unidade="g/ton"
         />
       </div>
       {/* Gráfico */}
